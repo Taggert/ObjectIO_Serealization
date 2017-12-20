@@ -5,7 +5,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Main {
+public class InputData {
 
     private static final String FILENAME = "user.dta";
 
@@ -20,7 +20,7 @@ public class Main {
             if (field.getType().isPrimitive()) {
                 id = field;
             } else {
-                System.out.println("Input " + field.getName() + ", or type Exit to exit:");
+                System.out.println("Input " + getFieldName(field) + ", or type Exit to exit:");
                 field.setAccessible(true);
                 String str=br.readLine();
                 if(str.equalsIgnoreCase("exit")){
@@ -87,16 +87,35 @@ public class Main {
         System.out.println();
         return list;
     }
+
+    private static String getFieldName(Field field){
+        boolean annotationPresent = field.isAnnotationPresent(PrintAnnotation.class);
+        if(annotationPresent){
+            PrintAnnotation annotation = field.getAnnotation(PrintAnnotation.class);
+            return annotation.printValue();
+        }
+        return field.getName();
+    }
 }
 
 class User implements Serializable {
 
 
     private int id = 0;
+    @PrintAnnotation(printValue = "Username")
+    @NotNull
     private String username = "";
+    @PrintAnnotation(printValue = "Password")
+    @NotNull
     private String password;
+    @PrintAnnotation(printValue = "First name")
+    @NotNull
     private String firstName;
+    @PrintAnnotation(printValue = "Last name")
+    @NotNull
     private String lastName;
+    @PrintAnnotation(printValue = "E-mail")
+    @NotNull
     private String email;
 
     public User() {
