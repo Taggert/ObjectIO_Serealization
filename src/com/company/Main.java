@@ -20,9 +20,15 @@ public class Main {
             if (field.getType().isPrimitive()) {
                 id = field;
             } else {
-                System.out.println("Input " + field.getName() + ":");
+                System.out.println("Input " + field.getName() + ", or type Exit to exit:");
                 field.setAccessible(true);
-                field.set(u, br.readLine());
+                String str=br.readLine();
+                if(str.equalsIgnoreCase("exit")){
+                    isr.close();
+                    br.close();
+                    return;
+                }
+                field.set(u, str);
             }
         }
         isr.close();
@@ -35,7 +41,7 @@ public class Main {
             list = deserialize(FILENAME);
             size = list.size();
             for (User user : list) {
-                if (user.getUsername().equals(u.getUsername())) {
+                if (user.getUsername().equalsIgnoreCase(u.getUsername())) {
                     flag = false;
                     System.out.println("User " + u.getUsername() + " exists");
                 }

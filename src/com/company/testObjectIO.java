@@ -38,9 +38,21 @@ public class testObjectIO {
             Class c = User.class;
             Field[] allFields = c.getDeclaredFields();
             for (int i = 1; i < 3; i++) {
-                System.out.println("Input " + allFields[i].getName() + ":");
+                System.out.println("Input " + allFields[i].getName() + ", or type Exit to exit:");
                 allFields[i].setAccessible(true);
-                allFields[i].set(uTest, br.readLine());
+                String str=br.readLine();
+                if(str.equalsIgnoreCase("exit")){
+                    isr.close();
+                    br.close();
+                    return null;
+                }
+                if(str.equalsIgnoreCase("print all")){
+                    list.forEach(System.out::println);
+                    isr.close();
+                    br.close();
+                    return null;
+                }
+                allFields[i].set(uTest, str);
             }
             for (User user : list) {
                 if (user.getUsername().equalsIgnoreCase(uTest.getUsername()) && user.getPassword().equals(uTest.getPassword())) {
