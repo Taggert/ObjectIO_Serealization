@@ -26,51 +26,83 @@ public class Validator {
         }
     }
 
-    private static void validateLength(Object o, int min, int max){
+    private static void validateLength(Object o, int min, int max) {
         String s = (String) o;
-        if(s == null && min ==0){
+        if (s == null && min == 0) {
             return;
         }
-        if(s == null){
+        if (s == null) {
             throw new RuntimeException("Incorrect length. Length is null.");
         }
-        if(s.length()>max || s.length()<min){
+        if (s.length() > max || s.length() < min) {
 
-            throw new RuntimeException("Incorrect length. Legth is not in range: " + min + " - "+max+".");
+            throw new RuntimeException("Incorrect length. Legth is not in range: " + min + " - " + max + ".");
         }
         return;
     }
 
-    private static void validateEmail(Object o){
+    private static void validateEmail(Object o) {
         String s = (String) o;
-        Pattern p =Pattern.compile("\\w+\\@[0-9a-zA-Z]+\\.[a-zA-Z]+");
+        Pattern p = Pattern.compile("\\w+\\@[0-9a-zA-Z]+\\.[a-zA-Z]+");
         Matcher m = p.matcher(s);
-        if(!m.matches()){
+        if (!m.matches()) {
             throw new RuntimeException("Incorrect eMail. Please input eMail, equals example@example.com");
         }
 
     }
-    public static void validateProcessing(Field field, Object user) throws IllegalAccessException {
 
+    private static void validateNumber(Object o, int min, int max) {
+        int s = (int) o;
+        if (s == 0 && min == 0) {
+            return;
+        }
+        if (s == 0) {
+            throw new RuntimeException("Incorrect number. It is null.");
+        }
+        if (s > max || s < min) {
+
+            throw new RuntimeException("Incorrect number. Number is not in range: " + min + " - " + max + ".");
+        }
+        return;
+    }
+
+    public static String validateProcessing(Field field, Object user) throws IllegalAccessException {
+        String res = "";
         boolean annotationPresent = field.isAnnotationPresent(NotNull.class);
-        if(annotationPresent){
-            validateNotNull(field.get(user));
+        if (annotationPresent) {
+            try {
+                validateNotNull(field.get(user));
+            }catch (RuntimeException e){
+                res = res + e.getMessage() +"\n";
+            }
         }
         annotationPresent = field.isAnnotationPresent(NotBlank.class);
         if (annotationPresent) {
-            validateNotBlank(field.get(user));
+            try {
+                validateNotBlank(field.get(user));
+            }catch (RuntimeException e){
+                res = res + e.getMessage() +"\n";
+            }
         }
         annotationPresent = field.isAnnotationPresent(Length.class);
         if (annotationPresent) {
             Length length = field.getAnnotation(Length.class);
             Object o = field.get(user);
-            validateLength((String) o, length.minValue(), length.maxValue());
+            try {
+                validateLength((String) o, length.minValue(), length.maxValue());
+            }catch (RuntimeException e){
+                res = res + e.getMessage() +"\n";
+            }
         }
         annotationPresent = field.isAnnotationPresent(Email.class);
-        if(annotationPresent){
-            Validator.validateEmail(field.get(user));
+        if (annotationPresent) {
+            try {
+                Validator.validateEmail(field.get(user));
+            }catch (RuntimeException e){
+                res = res + e.getMessage() +"\n";
+            }
         }
-
+        return res;
     }
 
 

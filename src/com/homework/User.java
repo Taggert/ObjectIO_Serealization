@@ -11,6 +11,7 @@ public class User implements Serializable {
 
 private int id = 0;
 @DisplayName(printValue = "Username")
+@NotNull
 @NotBlank
 @Length(minValue = 3, maxValue = 15)
 @NumberLength()

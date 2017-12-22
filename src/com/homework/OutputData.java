@@ -43,30 +43,33 @@ public class OutputData {
             for (int i = 1; i < 3; i++) {
                 boolean f = true;
                 String str = "";
+                String err = "";
                 while (f) {
-                    try {
-                        System.out.println("Input " + getFieldName(allFields[i])[0] + " " + getFieldName(allFields[i])[1] + "\nor type Exit to exit:");
 
-                        allFields[i].setAccessible(true);
-                        str = br.readLine();
-                        if (str.equalsIgnoreCase("exit")) {
-                            isr.close();
-                            br.close();
-                            return "";
-                        }
-                        if (str.equalsIgnoreCase("print all")) {
-                            list.forEach(System.out::println);
-                            isr.close();
-                            br.close();
-                            return "";
-                        }
-                        allFields[i].set(uTest, str);
-                        f = false;
-                        Validator.validateProcessing(allFields[i], uTest);
-                    } catch (RuntimeException e) {
-                        System.err.println(e.getMessage());
+                    System.out.println("Input " + getFieldName(allFields[i])[0] + ". " + getFieldName(allFields[i])[1] + "\nor type Exit to exit:");
+
+                    allFields[i].setAccessible(true);
+                    str = br.readLine();
+                    if (str.equalsIgnoreCase("exit")) {
+                        isr.close();
+                        br.close();
+                        return "";
+                    }
+                    if (str.equalsIgnoreCase("print all")) {
+                        list.forEach(System.out::println);
+                        isr.close();
+                        br.close();
+                        return "";
+                    }
+                    allFields[i].set(uTest, str);
+                    f = false;
+                    err = Validator.validateProcessing(allFields[i], uTest);
+
+                    if (!err.equals("")) {
+                        System.out.println("\n" + err);
                         f = true;
                     }
+
                 }
 
 
@@ -92,14 +95,11 @@ public class OutputData {
         boolean annotationPresent = field.isAnnotationPresent(DisplayName.class);
         if (annotationPresent) {
             DisplayName annotation = field.getAnnotation(DisplayName.class);
-            res[0] =  annotation.printValue();
+            res[0] = annotation.printValue();
             annotationPresent = field.isAnnotationPresent(Length.class);
-            boolean annotationPresent2 = field.isAnnotationPresent(NumberLength.class);
-
-            if(annotationPresent && annotationPresent2){
+            if (annotationPresent) {
                 Length size = field.getAnnotation(Length.class);
-                NumberLength ann = field.getAnnotation(NumberLength.class);
-                res[1] = res[0] + " is " +size.minValue()+ " - " +size.maxValue()+ " symbols";
+                res[1] = res[0] + " is " + size.minValue() + " - " + size.maxValue() + " symbols";
             }
         }
         return res;

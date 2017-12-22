@@ -27,35 +27,38 @@ public class InputData {
             } else {
                 boolean f = true;
                 String str = "";
+                String err = "";
                 while (f) {
-                    try {
-                        System.out.println("Input " + getFieldName(field)[0] +" "+ getFieldName(field)[1]+ "\nor type Exit to exit:");
-                        field.setAccessible(true);
-                        str = br.readLine();
-                        if (str.equalsIgnoreCase("exit")) {
-                            isr.close();
-                            br.close();
-                            return;
-                        }
-                        field.set(u, str);
-                        f = false;
-                        Validator.validateProcessing(field, u);
-                    } catch (RuntimeException e) {
-                        System.err.println(e.getMessage());
+                    System.out.println("Input " + getFieldName(field)[0] + ". " + getFieldName(field)[1] + "\nor type Exit to exit:");
+                    field.setAccessible(true);
+                    str = br.readLine();
+                    if (str.equalsIgnoreCase("exit")) {
+                        isr.close();
+                        br.close();
+                        return;
+                    }
+                    field.set(u, str);
+                    f = false;
+                    err = Validator.validateProcessing(field, u);
+                    if (!err.equals("")) {
+                        System.out.println("\n"+err);
                         f = true;
                     }
                 }
-
-
             }
+
+
         }
+
         isr.close();
         br.close();
         boolean flag = true;
         File f = new File(FILENAME);
         int size = 0;
         List<User> list = new ArrayList<>();
-        if (f.exists()) {
+        if (f.exists())
+
+        {
             list = deserialize(FILENAME);
             size = list.size();
             for (User user : list) {
@@ -65,7 +68,9 @@ public class InputData {
                 }
             }
         }
-        if (flag) {
+        if (flag)
+
+        {
             id.setAccessible(true);
             id.setInt(u, (size + 1));
             list.add(u);
@@ -113,14 +118,11 @@ public class InputData {
         boolean annotationPresent = field.isAnnotationPresent(DisplayName.class);
         if (annotationPresent) {
             DisplayName annotation = field.getAnnotation(DisplayName.class);
-            res[0] =  annotation.printValue();
+            res[0] = annotation.printValue();
             annotationPresent = field.isAnnotationPresent(Length.class);
-            boolean annotationPresent2 = field.isAnnotationPresent(NumberLength.class);
-
-            if(annotationPresent && annotationPresent2){
+            if (annotationPresent) {
                 Length size = field.getAnnotation(Length.class);
-                NumberLength ann = field.getAnnotation(NumberLength.class);
-                res[1] = res[0] + " is " +size.minValue()+ " - " +size.maxValue()+ " symbols";
+                res[1] = res[0] + " is " + size.minValue() + " - " + size.maxValue() + " symbols";
             }
         }
         return res;
