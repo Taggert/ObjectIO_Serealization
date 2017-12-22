@@ -1,9 +1,6 @@
 package com.homework;
 
-import com.homework.Annotations.Email;
-import com.homework.Annotations.Length;
-import com.homework.Annotations.NotBlank;
-import com.homework.Annotations.NotNull;
+import com.homework.Annotations.*;
 
 import java.lang.reflect.Field;
 import java.util.regex.Matcher;
@@ -20,7 +17,7 @@ public class Validator {
 
     private static void validateNotBlank(Object o) {
 
-        String string = (String) o;
+        String string = o.toString();
         if (string == null || string.trim().equals("")) {
             throw new RuntimeException("Field is blank");
         }
@@ -52,7 +49,13 @@ public class Validator {
     }
 
     private static void validateNumber(Object o, int min, int max) {
-        int s = (int) o;
+        String str = (String) o;
+        Pattern p = Pattern.compile("[0-9]+");
+        Matcher m = p.matcher(str);
+        if (!m.matches()) {
+            throw new RuntimeException("Not a number.");
+        }
+        int s = Integer.parseInt(str);
         if (s == 0 && min == 0) {
             return;
         }
@@ -89,7 +92,17 @@ public class Validator {
             Length length = field.getAnnotation(Length.class);
             Object o = field.get(user);
             try {
-                validateLength((String) o, length.minValue(), length.maxValue());
+                validateLength(o, length.minValue(), length.maxValue());
+            }catch (RuntimeException e){
+                res = res + e.getMessage() +"\n";
+            }
+        }
+        annotationPresent = field.isAnnotationPresent(NumberLength.class);
+        if (annotationPresent) {
+            NumberLength numberLength = field.getAnnotation(NumberLength.class);
+            Object o = field.get(user);
+            try {
+                validateNumber(o, numberLength.minValue(), numberLength.maxValue());
             }catch (RuntimeException e){
                 res = res + e.getMessage() +"\n";
             }
@@ -100,6 +113,30 @@ public class Validator {
                 Validator.validateEmail(field.get(user));
             }catch (RuntimeException e){
                 res = res + e.getMessage() +"\n";
+            }
+        }
+        return res;
+    }
+
+    public static String[] getFieldName(Field field) {
+        String[] res = new String[2];
+        res[0] = "";
+        res[1] = "";
+
+        boolean annotationPresent = field.isAnnotationPresent(DisplayName.class);
+        if (annotationPresent) {
+            DisplayName annotation = field.getAnnotation(DisplayName.class);
+            res[0] = annotation.printValue();
+            annotationPresent = field.isAnnotationPresent(Length.class);
+
+            if (annotationPresent) {
+                Length size = field.getAnnotation(Length.class);
+                res[1] = res[0] + " is " + size.minValue() + " - " + size.maxValue() + " symbols";
+            }
+            annotationPresent = field.isAnnotationPresent(NumberLength.class);
+            if(annotationPresent){
+                NumberLength size = field.getAnnotation(NumberLength.class);
+                res[1] = res[0] + " is " + size.minValue() + " - " + size.maxValue();
             }
         }
         return res;

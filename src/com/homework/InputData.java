@@ -29,7 +29,7 @@ public class InputData {
                 String str = "";
                 String err = "";
                 while (f) {
-                    System.out.println("Input " + getFieldName(field)[0] + ". " + getFieldName(field)[1] + "\nor type Exit to exit:");
+                    System.out.println("Input " + Validator.getFieldName(field)[0] + ". " + Validator.getFieldName(field)[1] + "\nor type Exit to exit:");
                     field.setAccessible(true);
                     str = br.readLine();
                     if (str.equalsIgnoreCase("exit")) {
@@ -37,13 +37,16 @@ public class InputData {
                         br.close();
                         return;
                     }
+
                     field.set(u, str);
+
                     f = false;
                     err = Validator.validateProcessing(field, u);
                     if (!err.equals("")) {
-                        System.out.println("\n"+err);
+                        System.out.println("\n" + err);
                         f = true;
                     }
+
                 }
             }
 
@@ -108,24 +111,6 @@ public class InputData {
         }
         System.out.println();
         return list;
-    }
-
-    private static String[] getFieldName(Field field) {
-        String[] res = new String[2];
-        res[0] = "";
-        res[1] = "";
-
-        boolean annotationPresent = field.isAnnotationPresent(DisplayName.class);
-        if (annotationPresent) {
-            DisplayName annotation = field.getAnnotation(DisplayName.class);
-            res[0] = annotation.printValue();
-            annotationPresent = field.isAnnotationPresent(Length.class);
-            if (annotationPresent) {
-                Length size = field.getAnnotation(Length.class);
-                res[1] = res[0] + " is " + size.minValue() + " - " + size.maxValue() + " symbols";
-            }
-        }
-        return res;
     }
 }
 

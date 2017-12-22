@@ -40,13 +40,13 @@ public class OutputData {
             BufferedReader br = new BufferedReader(isr);
             Class c = User.class;
             Field[] allFields = c.getDeclaredFields();
-            for (int i = 1; i < 3; i++) {
+            for (int i = 2; i < 4; i++) {
                 boolean f = true;
                 String str = "";
                 String err = "";
                 while (f) {
 
-                    System.out.println("Input " + getFieldName(allFields[i])[0] + ". " + getFieldName(allFields[i])[1] + "\nor type Exit to exit:");
+                    System.out.println("Input " + Validator.getFieldName(allFields[i])[0] + ". " + Validator.getFieldName(allFields[i])[1] + "\nor type Exit to exit:");
 
                     allFields[i].setAccessible(true);
                     str = br.readLine();
@@ -84,24 +84,5 @@ public class OutputData {
         }
         System.out.println("No file!");
         return "";
-    }
-
-
-    private static String[] getFieldName(Field field) {
-        String[] res = new String[2];
-        res[0] = "";
-        res[1] = "";
-
-        boolean annotationPresent = field.isAnnotationPresent(DisplayName.class);
-        if (annotationPresent) {
-            DisplayName annotation = field.getAnnotation(DisplayName.class);
-            res[0] = annotation.printValue();
-            annotationPresent = field.isAnnotationPresent(Length.class);
-            if (annotationPresent) {
-                Length size = field.getAnnotation(Length.class);
-                res[1] = res[0] + " is " + size.minValue() + " - " + size.maxValue() + " symbols";
-            }
-        }
-        return res;
     }
 }
