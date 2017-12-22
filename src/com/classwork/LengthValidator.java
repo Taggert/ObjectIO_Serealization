@@ -1,4 +1,4 @@
-package com.company;
+package com.classwork;
 
 public class LengthValidator {
 

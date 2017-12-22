@@ -1,8 +1,9 @@
-package com.company;
+package com.homework;
+
+import com.homework.Annotations.PrintAnnotation;
 
 import java.io.*;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.List;
 
 public class OutputData {
@@ -30,7 +31,7 @@ public class OutputData {
         return list;
     }
 
-    private static User checkUser(List<User> list) throws IOException, IllegalAccessException {
+    private static String  checkUser(List<User> list) throws IOException, IllegalAccessException {
         if (list != null) {
             User uTest = new User();
             InputStreamReader isr = new InputStreamReader(System.in);
@@ -38,31 +39,54 @@ public class OutputData {
             Class c = User.class;
             Field[] allFields = c.getDeclaredFields();
             for (int i = 1; i < 3; i++) {
-                System.out.println("Input " + allFields[i].getName() + ", or type Exit to exit:");
-                allFields[i].setAccessible(true);
-                String str=br.readLine();
+                boolean f = true;
+                String str = "";
+                while (f) {
+                    try {
+                        System.out.println("Input " + getFieldName(allFields[i]) + ", or type Exit to exit:");
+                        allFields[i].setAccessible(true);
+                        str = br.readLine();
+                        allFields[i].set(uTest, str);
+                        f = false;
+                        Validator.validateProcessing(allFields[i], uTest);
+                    } catch (RuntimeException e) {
+                        System.err.println(e.getMessage());
+                        f = true;
+                    }
+                }
                 if(str.equalsIgnoreCase("exit")){
                     isr.close();
                     br.close();
-                    return null;
+                    return "";
                 }
                 if(str.equalsIgnoreCase("print all")){
                     list.forEach(System.out::println);
                     isr.close();
                     br.close();
-                    return null;
+                    return "";
                 }
-                allFields[i].set(uTest, str);
+
             }
             for (User user : list) {
                 if (user.getUsername().equalsIgnoreCase(uTest.getUsername()) && user.getPassword().equals(uTest.getPassword())) {
-                    return user;
+                    return user.toString();
                 }
             }
             System.out.println("There is no user "+ uTest.getUsername());
-            return null;
+            return "";
         }
         System.out.println("No file!");
-        return null;
+        return "";
+    }
+
+
+
+    private static String getFieldName(Field field) {
+        boolean annotationPresent = field.isAnnotationPresent(PrintAnnotation.class);
+        if (annotationPresent) {
+            PrintAnnotation annotation = field.getAnnotation(PrintAnnotation.class);
+            return annotation.printValue();
+        }
+        return field.getName();
     }
 }

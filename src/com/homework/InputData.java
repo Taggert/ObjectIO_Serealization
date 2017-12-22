@@ -1,4 +1,6 @@
-package com.company;
+package com.homework;
+
+import com.homework.Annotations.PrintAnnotation;
 
 import java.io.*;
 import java.lang.reflect.Field;
@@ -20,15 +22,27 @@ public class InputData {
             if (field.getType().isPrimitive()) {
                 id = field;
             } else {
-                System.out.println("Input " + getFieldName(field) + ", or type Exit to exit:");
-                field.setAccessible(true);
-                String str=br.readLine();
-                if(str.equalsIgnoreCase("exit")){
+                boolean f = true;
+                String str = "";
+                while (f) {
+                    try {
+                        System.out.println("Input " + getFieldName(field) + ", or type Exit to exit:");
+                        field.setAccessible(true);
+                        str = br.readLine();
+                        field.set(u, str);
+                        f = false;
+                        Validator.validateProcessing(field, u);
+                    } catch (RuntimeException e) {
+                        System.err.println(e.getMessage());
+                        f = true;
+                    }
+                }
+
+                if (str.equalsIgnoreCase("exit")) {
                     isr.close();
                     br.close();
                     return;
                 }
-                field.set(u, str);
             }
         }
         isr.close();
@@ -55,7 +69,6 @@ public class InputData {
         }
         //list.forEach(System.out::println);
     }
-
 
 
     private static void serialize(List<User> listUsers) {
@@ -88,9 +101,9 @@ public class InputData {
         return list;
     }
 
-    private static String getFieldName(Field field){
+    private static String getFieldName(Field field) {
         boolean annotationPresent = field.isAnnotationPresent(PrintAnnotation.class);
-        if(annotationPresent){
+        if (annotationPresent) {
             PrintAnnotation annotation = field.getAnnotation(PrintAnnotation.class);
             return annotation.printValue();
         }
@@ -98,73 +111,5 @@ public class InputData {
     }
 }
 
-class User implements Serializable {
-
-
-    private int id = 0;
-    @PrintAnnotation(printValue = "Username")
-    @NotNull
-    private String username = "";
-    @PrintAnnotation(printValue = "Password")
-    @NotNull
-    private String password;
-    @PrintAnnotation(printValue = "First name")
-    @NotNull
-    private String firstName;
-    @PrintAnnotation(printValue = "Last name")
-    @NotNull
-    private String lastName;
-    @PrintAnnotation(printValue = "E-mail")
-    @NotNull
-    private String email;
-
-    public User() {
-    }
-
-    public User(int id, String username, String password, String firstName, String lastName, String email) {
-        this.id = id;
-        this.username = username;
-        this.password = password;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    @Override
-    public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", username='" + username + '\'' +
-                ", password='" + password + '\'' +
-                ", firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", email='" + email + '\'' +
-                '}';
-    }
-}
 
 
