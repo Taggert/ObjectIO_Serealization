@@ -1,6 +1,8 @@
 package com.homework;
 
-import com.homework.Annotations.PrintAnnotation;
+import com.homework.Annotations.DisplayName;
+import com.homework.Annotations.Length;
+import com.homework.Annotations.NumberLength;
 
 import java.io.*;
 import java.lang.reflect.Field;
@@ -31,7 +33,7 @@ public class OutputData {
         return list;
     }
 
-    private static String  checkUser(List<User> list) throws IOException, IllegalAccessException {
+    private static String checkUser(List<User> list) throws IOException, IllegalAccessException {
         if (list != null) {
             User uTest = new User();
             InputStreamReader isr = new InputStreamReader(System.in);
@@ -43,9 +45,21 @@ public class OutputData {
                 String str = "";
                 while (f) {
                     try {
-                        System.out.println("Input " + getFieldName(allFields[i]) + ", or type Exit to exit:");
+                        System.out.println("Input " + getFieldName(allFields[i])[0] + " " + getFieldName(allFields[i])[1] + "\nor type Exit to exit:");
+
                         allFields[i].setAccessible(true);
                         str = br.readLine();
+                        if (str.equalsIgnoreCase("exit")) {
+                            isr.close();
+                            br.close();
+                            return "";
+                        }
+                        if (str.equalsIgnoreCase("print all")) {
+                            list.forEach(System.out::println);
+                            isr.close();
+                            br.close();
+                            return "";
+                        }
                         allFields[i].set(uTest, str);
                         f = false;
                         Validator.validateProcessing(allFields[i], uTest);
@@ -54,17 +68,7 @@ public class OutputData {
                         f = true;
                     }
                 }
-                if(str.equalsIgnoreCase("exit")){
-                    isr.close();
-                    br.close();
-                    return "";
-                }
-                if(str.equalsIgnoreCase("print all")){
-                    list.forEach(System.out::println);
-                    isr.close();
-                    br.close();
-                    return "";
-                }
+
 
             }
             for (User user : list) {
@@ -72,7 +76,7 @@ public class OutputData {
                     return user.toString();
                 }
             }
-            System.out.println("There is no user "+ uTest.getUsername());
+            System.out.println("There is no user " + uTest.getUsername());
             return "";
         }
         System.out.println("No file!");
@@ -80,13 +84,24 @@ public class OutputData {
     }
 
 
+    private static String[] getFieldName(Field field) {
+        String[] res = new String[2];
+        res[0] = "";
+        res[1] = "";
 
-    private static String getFieldName(Field field) {
-        boolean annotationPresent = field.isAnnotationPresent(PrintAnnotation.class);
+        boolean annotationPresent = field.isAnnotationPresent(DisplayName.class);
         if (annotationPresent) {
-            PrintAnnotation annotation = field.getAnnotation(PrintAnnotation.class);
-            return annotation.printValue();
+            DisplayName annotation = field.getAnnotation(DisplayName.class);
+            res[0] =  annotation.printValue();
+            annotationPresent = field.isAnnotationPresent(Length.class);
+            boolean annotationPresent2 = field.isAnnotationPresent(NumberLength.class);
+
+            if(annotationPresent && annotationPresent2){
+                Length size = field.getAnnotation(Length.class);
+                NumberLength ann = field.getAnnotation(NumberLength.class);
+                res[1] = res[0] + " is " +size.minValue()+ " - " +size.maxValue()+ " symbols";
+            }
         }
-        return field.getName();
+        return res;
     }
 }

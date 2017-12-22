@@ -1,6 +1,9 @@
 package com.homework;
 
-import com.homework.Annotations.PrintAnnotation;
+import com.homework.Annotations.DisplayName;
+import com.homework.Annotations.Length;
+import com.homework.Annotations.NumberLength;
+import com.homework.Annotations.DisplayName;
 
 import java.io.*;
 import java.lang.reflect.Field;
@@ -26,9 +29,14 @@ public class InputData {
                 String str = "";
                 while (f) {
                     try {
-                        System.out.println("Input " + getFieldName(field) + ", or type Exit to exit:");
+                        System.out.println("Input " + getFieldName(field)[0] +" "+ getFieldName(field)[1]+ "\nor type Exit to exit:");
                         field.setAccessible(true);
                         str = br.readLine();
+                        if (str.equalsIgnoreCase("exit")) {
+                            isr.close();
+                            br.close();
+                            return;
+                        }
                         field.set(u, str);
                         f = false;
                         Validator.validateProcessing(field, u);
@@ -38,11 +46,7 @@ public class InputData {
                     }
                 }
 
-                if (str.equalsIgnoreCase("exit")) {
-                    isr.close();
-                    br.close();
-                    return;
-                }
+
             }
         }
         isr.close();
@@ -101,13 +105,25 @@ public class InputData {
         return list;
     }
 
-    private static String getFieldName(Field field) {
-        boolean annotationPresent = field.isAnnotationPresent(PrintAnnotation.class);
+    private static String[] getFieldName(Field field) {
+        String[] res = new String[2];
+        res[0] = "";
+        res[1] = "";
+
+        boolean annotationPresent = field.isAnnotationPresent(DisplayName.class);
         if (annotationPresent) {
-            PrintAnnotation annotation = field.getAnnotation(PrintAnnotation.class);
-            return annotation.printValue();
+            DisplayName annotation = field.getAnnotation(DisplayName.class);
+            res[0] =  annotation.printValue();
+            annotationPresent = field.isAnnotationPresent(Length.class);
+            boolean annotationPresent2 = field.isAnnotationPresent(NumberLength.class);
+
+            if(annotationPresent && annotationPresent2){
+                Length size = field.getAnnotation(Length.class);
+                NumberLength ann = field.getAnnotation(NumberLength.class);
+                res[1] = res[0] + " is " +size.minValue()+ " - " +size.maxValue()+ " symbols";
+            }
         }
-        return field.getName();
+        return res;
     }
 }
 

@@ -1,33 +1,34 @@
 package com.homework;
 
-import com.homework.Annotations.Email;
-import com.homework.Annotations.Length;
-import com.homework.Annotations.NotBlank;
-import com.homework.Annotations.PrintAnnotation;
+import com.homework.Annotations.*;
+import com.homework.Annotations.DisplayName;
 
 import java.io.Serializable;
+import java.lang.reflect.Field;
 
 public class User implements Serializable {
 
 
 private int id = 0;
-@PrintAnnotation(printValue = "Username")
+@DisplayName(printValue = "Username")
 @NotBlank
 @Length(minValue = 3, maxValue = 15)
+@NumberLength()
 private String username = "";
-@PrintAnnotation(printValue = "Password")
+@DisplayName(printValue = "Password")
 @NotBlank
 @Length(minValue = 6, maxValue = 15)
+@NumberLength()
 private String password;
-@PrintAnnotation(printValue = "First name")
+@DisplayName(printValue = "First name")
 @NotBlank
 @Length(minValue = 1, maxValue = 15)
 private String firstName;
-@PrintAnnotation(printValue = "Last name")
+@DisplayName(printValue = "Last name")
 @NotBlank
 @Length(minValue = 1, maxValue = 15)
 private String lastName;
-@PrintAnnotation(printValue = "E-mail")
+@DisplayName(printValue = "E-mail")
 @NotBlank
 @Email
 private String email;
